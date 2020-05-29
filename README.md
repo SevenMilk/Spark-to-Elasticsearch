@@ -1,5 +1,3 @@
-# Spark-to-Elasticsearch
-
 # SparkToEs.py
 由spark讀取csv ETL後使用ES-Hadoop將資料傳進elasticsearch
 
