@@ -90,9 +90,7 @@ if __name__ == "__main__":
 	json_city_Taoyuan = Taoyuan_rdd.map(tran_json)
 	json_city_Taichung = Taichung_rdd.map(tran_json)
 	json_city_Kaohsiung = Kaohsiung_rdd.map(tran_json)
-	#df_filter_Taipei.write.format("org.elasticsearch.spark.sql").option("es.resource", "my_index_1/data_1").option("es.nodes", "192.168.45.128").save()
-	#有成功寫入,不過只有column name,而且如果用已有資料的index會出現error"SaveMode is set to ErrorIfExists and index my_index/data exists and contains data. Consider changing the SaveMode"
-	
+
 	sparkToEs(json_city_Taipei)
 	sparkToEs(json_city_New_Taipei_City)
 	sparkToEs(json_city_Taoyuan)
