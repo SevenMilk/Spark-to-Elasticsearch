@@ -7,6 +7,7 @@ from pyspark.sql.types import *
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
 
+#轉成json format date
 class DateEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
@@ -42,6 +43,7 @@ def trans_schema(data):
 
 if __name__ == "__main__":
 
+	#宣告spark參數
 	spark = SparkSession \
 			.builder \
 			.getOrCreate()
@@ -61,6 +63,7 @@ if __name__ == "__main__":
 	df_filter_Taichung = trans_first(Taichung_spark_df)
 	df_filter_Kaohsiung = trans_first(Kaohsiung_spark_df)
 	
+	#中換英、改時間format、orderBy desc 時間
 	city_Taipei = {"city":"台北市"}
 	city_New_Taipei_City = {"city":"新北市"}
 	city_Taoyuan = {"city":"桃園市"}
@@ -73,13 +76,14 @@ if __name__ == "__main__":
 	time_slot_Taichung = {"time_slot":""}
 	time_slot_Kaohsiung = {"time_slot":""}	
 	
+	#製成假json format
 	rdd_Taipei= df_filter_Taipei.rdd.map(trans_schema)
 	rdd_New_Taipei_City= df_filter_New_Taipei_City.rdd.map(trans_schema)
 	rdd_Taoyuan= df_filter_Taoyuan.rdd.map(trans_schema)
 	rdd_Taichung= df_filter_Taichung.rdd.map(trans_schema)
 	rdd_Kaohsiung= df_filter_Kaohsiung.rdd.map(trans_schema)
 
-	#----------------------------------------------------------------------
+	#完成格式-----------------------------------------------------------------------------
 	time_slot_Taipei["time_slot"] = rdd_Taipei.collect()
 	time_slot_New_Taipei_City["time_slot"] = rdd_New_Taipei_City.collect()
 	time_slot_Taoyuan["time_slot"] = rdd_Taoyuan.collect()
@@ -91,9 +95,9 @@ if __name__ == "__main__":
 	city_Taoyuan.update(time_slot_Taoyuan)
 	city_Taichung.update(time_slot_Taichung)
 	city_Kaohsiung.update(time_slot_Kaohsiung)
-	#-----------------------------------------------------------------------
+	#-------------------------------------------------------------------------------------
 
-	#trans json
+	#轉成json format
 	json_city_Taipei = json.dumps(city_Taipei,ensure_ascii=False,cls=DateEncoder)
 	json_city_New_Taipei_City = json.dumps(city_New_Taipei_City,ensure_ascii=False,cls=DateEncoder)
 	json_city_Taoyuan = json.dumps(city_Taoyuan,ensure_ascii=False,cls=DateEncoder)
