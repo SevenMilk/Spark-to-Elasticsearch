@@ -1,0 +1,2 @@
+#df_filter_Taipei.write.format("org.elasticsearch.spark.sql").option("es.resource", "my_index_1/data_1").option("es.nodes", "192.168.45.128").save()
+#有成功寫入,不過只有column name,而且如果用已有資料的index會出現error"SaveMode is set to ErrorIfExists and index my_index/data exists and contains data. Consider changing the SaveMode"

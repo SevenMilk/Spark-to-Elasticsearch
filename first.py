@@ -36,6 +36,10 @@ def trans_first(new_spark_df):
     
     return df_filter.orderBy(desc('transaction_year_month_and_day'))			
 
+def update_and_return_dict(city_dict,data):
+    city_dict.update(data)  
+    return city_dict
+
 def tran_json(data):
     j=json.dumps(data,ensure_ascii=False,cls=DateEncoder).encode('ascii', 'ignore')
     data['doc_id'] = hashlib.sha224(j).hexdigest()
@@ -67,6 +71,12 @@ if __name__ == "__main__":
 	"es.mapping.id": "doc_id"
 	}	
 	
+	city_dict1 = {"city":"Taipei"}
+	city_dict2 = {"city":"New_Taipei_City"}
+	city_dict3 = {"city":"Taoyuan"}
+	city_dict4 = {"city":"Taichung"}
+	city_dict5 = {"city":"Kaohsiung"}
+	
 	Taipei_spark_df          = spark.read.csv("hdfs://localhost//user/cloudera/interview/A_lvr_land_A.csv", header=True)
 	New_Taipei_City_spark_df = spark.read.csv("hdfs://localhost//user/cloudera/interview/F_lvr_land_A.csv", header=True)
 	Taoyuan_spark_df         = spark.read.csv("hdfs://localhost//user/cloudera/interview/H_lvr_land_A.csv", header=True)
@@ -84,14 +94,18 @@ if __name__ == "__main__":
 	Taoyuan_rdd = df_filter_Taoyuan.rdd.map(lambda row: row.asDict(True))
 	Taichung_rdd = df_filter_Taichung.rdd.map(lambda row: row.asDict(True))
 	Kaohsiung_rdd = df_filter_Kaohsiung.rdd.map(lambda row: row.asDict(True))
-	
-	json_city_Taipei = Taipei_rdd.map(tran_json)
-	json_city_New_Taipei_City = New_Taipei_City_rdd.map(tran_json)
-	json_city_Taoyuan = Taoyuan_rdd.map(tran_json)
-	json_city_Taichung = Taichung_rdd.map(tran_json)
-	json_city_Kaohsiung = Kaohsiung_rdd.map(tran_json)
-	#df_filter_Taipei.write.format("org.elasticsearch.spark.sql").option("es.resource", "my_index_1/data_1").option("es.nodes", "192.168.45.128").save()
-	#有成功寫入,不過只有column name,而且如果用已有資料的index會出現error"SaveMode is set to ErrorIfExists and index my_index/data exists and contains data. Consider changing the SaveMode"
+
+	Taipei_rdd_1 = Taipei_rdd.map(lambda x: update_and_return_dict(city_dict1,x))
+	New_Taipei_City_rdd_1 = New_Taipei_City_rdd.map(lambda x: update_and_return_dict(city_dict2,x))
+	Taoyuan_rdd_1 = Taoyuan_rdd.map(lambda x: update_and_return_dict(city_dict3,x))
+	Taichung_rdd_1 = Taichung_rdd.map(lambda x: update_and_return_dict(city_dict4,x))
+	Kaohsiung_rdd_1 = Kaohsiung_rdd.map(lambda x: update_and_return_dict(city_dict5,x))
+
+	json_city_Taipei = Taipei_rdd_1.map(tran_json)
+	json_city_New_Taipei_City = New_Taipei_City_rdd_1.map(tran_json)
+	json_city_Taoyuan = Taoyuan_rdd_1.map(tran_json)
+	json_city_Taichung = Taichung_rdd_1.map(tran_json)
+	json_city_Kaohsiung = Kaohsiung_rdd_1.map(tran_json)
 	
 	sparkToEs(json_city_Taipei)
 	sparkToEs(json_city_New_Taipei_City)
